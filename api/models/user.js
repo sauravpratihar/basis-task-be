@@ -1,0 +1,27 @@
+const mongoose = require('mongoose');
+
+const userSchema = mongoose.Schema({
+    first_name: { 
+        type: String,
+    },
+    last_name: { 
+        type: String,
+    },
+    email: { 
+        type: String,
+    },
+    referral_code: {
+        type: String,
+    },
+    is_first_time: {
+        type: Boolean,
+        default: true
+    },
+    timestamp: {
+        type: Number
+    }
+}, {
+    versionKey: false,
+});
+
+module.exports = mongoose.model('user', userSchema);
