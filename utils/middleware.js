@@ -15,7 +15,6 @@ module.exports.handleToken = async (req, res, next) => {
   try{
     if(req.headers["token"]){
       const user = jwt.verify(req.headers["token"], JWT_SECRET)
-      console.log('xx',user)
       req.user = user
       next()
     }

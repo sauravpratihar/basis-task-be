@@ -5,7 +5,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
-
+const routes = require('./api')
 app.use(morgan('dev'))
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -21,3 +21,5 @@ app.get("/", function(req, res) {
 app.listen(8080, () => {
     console.log('Server started on port 8080')
 })
+
+routes(express, app)
