@@ -1,11 +1,10 @@
 const User = require("../models/user")
+const BlockedToken = require("../models/blockedToken")
 const { SUCCESS, ERROR, sendMail, OTP } = require("../../utils/helper");
 const jwt = require('jsonwebtoken');
-const { SALT_ROUND, JWT_SECRET, JWT_EXPIRE } = require('../../utils/contants')
-
+const { JWT_SECRET, JWT_EXPIRE } = require('../../utils/contants')
 
 module.exports.sendOTP = async function(req, res) {
-  // send otp
   const params = req.body
   const user_otp = OTP(6)
 
@@ -34,7 +33,6 @@ module.exports.sendOTP = async function(req, res) {
 };
 
 module.exports.signin = async function(req, res) {
-  // return token
   const params = req.body
   if(isNaN(params.otp)){
     return ERROR(res, "Invalid OTP", 403)
@@ -69,3 +67,15 @@ module.exports.updateUser = async function(req, res) {
         ERROR(res, 'Cannot update admin', 503)
     }
 }
+
+module.exports.signout = async function(req, res) {
+    BlockedToken.create({
+        token: req.headers.token,
+        timestamp: new Date()/1000
+    })
+    SUCCESS(res, "Logged Out", 200)
+}
+
+module.exports.getUser = async function(req, res) {
+    return SUCCESS(res, req.user, 200)
+};

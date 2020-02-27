@@ -1,12 +1,13 @@
 const { JWT_SECRET } = require('../utils/contants')
-const { SUCCESS, ERROR } = require("../utils/helper");
-const jwt = require('jsonwebtoken');
+const { SUCCESS, ERROR } = require("../utils/helper")
+const jwt = require('jsonwebtoken')
+const User = require('../api/models/user')
+const BlockedToken = require("../api/models/blockedToken")
 
 module.exports.asyncMiddleware = fn =>
   (req, res, next) => {
     Promise.resolve(fn(req, res, next))
       .catch(err => {
-        console.log('err',err)
         return ERROR(res, err.message, 500)
       });
   };
@@ -14,8 +15,13 @@ module.exports.asyncMiddleware = fn =>
 module.exports.handleToken = async (req, res, next) => {
   try{
     if(req.headers["token"]){
+      const isBlocked = (await BlockedToken.find({ token: req.headers["token"] })).length
+      if(isBlocked){
+        return ERROR(res, 'Expired Token', 403)
+      }
       const user = jwt.verify(req.headers["token"], JWT_SECRET)
-      req.user = user
+      console.log('objectxx', user._id)
+      req.user = await User.findOne({_id: user._id})
       next()
     }
     else{
@@ -23,10 +29,7 @@ module.exports.handleToken = async (req, res, next) => {
     }
   }
   catch(e){
-    console.log(e)
-    return ERROR(res, 'Unauthorized: ' + e.ERROR, 403)
-
-
+    return ERROR(res, 'Unauthorized: ' + e.message, 403)
   }
 }
 
@@ -48,7 +51,6 @@ module.exports.checkParamsGET = (arr) => {
 
 module.exports.checkParamsPOST = (arr) => {
     return (req, res, next) => {
-        // // console.log(req)
         let missing_params = []
         for (let i = 0; i < arr.length; i++) {
             if (!eval('req.body.' + arr[i])) {
