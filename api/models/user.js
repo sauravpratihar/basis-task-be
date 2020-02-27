@@ -13,7 +13,13 @@ const userSchema = mongoose.Schema({
     otp: { 
         type: Number,
     },
+    my_referral_code: {
+        type: String,
+    },
     referral_code: {
+        type: String,
+    },
+    referral_user_id: {
         type: String,
     },
     is_first_time: {

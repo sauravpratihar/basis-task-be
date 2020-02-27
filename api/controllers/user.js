@@ -7,11 +7,14 @@ const { JWT_SECRET, JWT_EXPIRE } = require('../../utils/contants')
 module.exports.sendOTP = async function(req, res) {
   const params = req.body
   const user_otp = OTP(6)
+  const my_referral_code = OTP(8)
+
 
   User.findOneAndUpdate({ email: params.email }, {
       $set: {
           email: params.email, 
           otp: user_otp,
+          my_referral_code,
           timestamp: new Date()/1000
       }
   }, {
@@ -28,7 +31,7 @@ module.exports.sendOTP = async function(req, res) {
     })
   })
   .catch(err => {
-    return ERROR(res, "Something went wrong:", err.message, 500 )
+    return ERROR(res, "Something went wrong: " + err, 500 )
   })
 };
 
@@ -49,11 +52,20 @@ module.exports.signin = async function(req, res) {
 
 module.exports.updateUser = async function(req, res) {
     const params = req.body
+    let ref_user = ""
+    if(params.referral_code){
+        ref_user = await User.find({ my_referral_code: params.referral_code })
+        if(!ref_user.length){
+            return ERROR(res, 'Invalid referral code', 422)
+        }
+        ref_user = ref_user[0]._id
+    }
     const updateUser = await User.findOneAndUpdate({ _id: req.user._id }, {
         $set: {
             first_name: params.first_name,
             last_name: params.last_name,
             referral_code: params.referral_code,
+            referral_user_id: ref_user,
             is_first_time: false
         }
     }, {

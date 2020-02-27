@@ -8,7 +8,7 @@ module.exports.asyncMiddleware = fn =>
   (req, res, next) => {
     Promise.resolve(fn(req, res, next))
       .catch(err => {
-        return ERROR(res, err.message, 500)
+        return ERROR(res, err, 500)
       });
   };
 
