@@ -20,7 +20,6 @@ module.exports.handleToken = async (req, res, next) => {
         return ERROR(res, 'Expired Token', 403)
       }
       const user = jwt.verify(req.headers["token"], JWT_SECRET)
-      console.log('objectxx', user._id)
       req.user = await User.findOne({_id: user._id})
       next()
     }
